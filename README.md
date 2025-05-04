@@ -1,4 +1,5 @@
-# Travel-Persona-Based-Destinations-Recommendation 🇸🇦 ✨
+# Travel-Persona-Based-Destinations-Recommendation 🇸🇦
+ ✨
 
 This is a web-based travel recommendation system that uses AI to suggest personalized destinations based on user preferences such as persona, keywords, and budget.
 
