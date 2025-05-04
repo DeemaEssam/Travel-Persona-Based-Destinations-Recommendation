@@ -20,9 +20,13 @@ This is a web-based travel recommendation system that uses AI to suggest persona
 
 ## 📁 Project Structure
 ├── app.py # Main Flask backend
+
 ├── model.py # AI recommendation logic
+
 ├── templates/ # HTML files (reg.html, persona.html, recommendation.html)
+
 ├── static/ # CSS, JS, and images
+
 ├── database.sql # Table creation script
 
 
