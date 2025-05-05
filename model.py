@@ -1,14 +1,9 @@
-import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-
 from sentence_transformers import SentenceTransformer, util
 import pandas as pd
 import numpy as np
 
 # Load pre-trained language model
 embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-
 
 df = pd.read_csv('dataset.csv')
 
@@ -36,8 +31,6 @@ def filter_and_prepare_data(preferred_subtype):
     missing_cols = [col for col in required_columns if col not in df.columns]
     if missing_cols:
         raise ValueError(f"Dataset is missing required columns: {missing_cols}")
-    
-    """Filter dataset based on user preferences (theme) and prepare text for TF-IDF."""
     
     if isinstance(df, pd.DataFrame):  # Ensure df is a DataFrame    
         # Check if preferred_subtype is a valid string
@@ -67,16 +60,6 @@ def filter_and_prepare_data(preferred_subtype):
 
 def compute_embeddings(texts):
     return embedding_model.encode(texts, convert_to_tensor=True)
-
-def handle_user_feedback(recommendations, user_preferences):
-    for index, row in recommendations.iterrows():
-        feedback = input(f"Do you like '{row['name']}'? (yes/no): ").strip().lower()
-        if feedback == "yes":
-            if "liked_places" not in user_preferences:
-                user_preferences["liked_places"] = []
-            user_preferences["liked_places"].append(row['name'])
-
-
 
 def recommend(preferred_subtype, keywords, travel_style=None, budget=None, age_group=None):
     # Ensure keywords is a list (if it's a string, split it)
