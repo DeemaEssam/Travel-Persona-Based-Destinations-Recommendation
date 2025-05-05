@@ -112,7 +112,7 @@ def recommend(preferred_subtype, keywords, travel_style=None, budget=None, age_g
     filtered_df['final_score'] = filtered_df['similarity'] + filtered_df['boost']
 
     # Sort by final score and get top recommendations
-    recommendations = filtered_df.sort_values(by='final_score', ascending=False).head(10)
+    recommendations = filtered_df.sort_values(by='final_score', ascending=False).head(900000)
 
     return recommendations[[
         'id', 'name', 'city', 'subtype', 'description_x',
