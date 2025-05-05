@@ -5,7 +5,7 @@ import hashlib  # For hashing passwords
 from model import recommend, get_persona   # Ensure this exists in model.py
 
 app = Flask(__name__)
-app.secret_key = 'a2f317f60abd436044914aebac4c2a7f'  # Required for sessions
+app.secret_key = 'my_secret_key'  # Required for sessions
 
 # Database Configuration
 app.config['MYSQL_HOST'] = 'localhost'
@@ -15,7 +15,6 @@ app.config['MYSQL_DB'] = 'persona'
 
 mysql = MySQL(app)
 
-
 @app.route('/')
 def index():
     return redirect(url_for('welcome'))  # Redirect to registration page
@@ -23,7 +22,6 @@ def index():
 @app.route('/welcome', methods=['GET', 'POST'])
 def welcome():
     return render_template('welcome.html')
-
 
 # ---------- Registration ----------
 @app.route('/register', methods=['GET', 'POST'])
@@ -85,9 +83,9 @@ def login():
 
         if user:
             session['user_id'] = user[0]
-            persona, keywords = user[4], user[5]
+            subtype, keywords = user[4], user[5]
 
-            if persona and keywords:
+            if subtype and keywords:
                 return redirect(url_for('home'))
             else:
                 return redirect(url_for('persona'))
@@ -103,29 +101,34 @@ def persona():
         return redirect(url_for('login'))
 
     if request.method == 'POST':
-        persona = request.form['persona']
+        subtype = request.form['subtype']
         keywords = request.form['keywords']
         age_group = request.form['age_group']
         travel_style = request.form['travel_style']
         budget = request.form['budget']
 
-        if not persona or not keywords:
-            flash("Persona and keywords are required.")
+        if not subtype or not keywords:
+            flash("subtype and keywords are required.")
             return redirect(url_for('persona'))
 
-        session['persona'] = persona
+        session['subtype'] = subtype
         session['keywords'] = keywords
         session['age_group'] = age_group
         session['travel_style'] = travel_style
         session['budget'] = budget
+        session['persona'] = get_persona(subtype)
+        
+        persona = session['persona']
+
+        print("Updating user with:", subtype, keywords, age_group, travel_style, budget, persona, session['user_id'])
 
         cursor = mysql.connection.cursor()
         cursor.execute(
             """UPDATE profile 
-            SET persona = %s, keywords = %s, 
-                age_group = %s, travel_style = %s, budget = %s 
+            SET subtype = %s, keywords = %s, 
+                age_group = %s, travel_style = %s, budget = %s, persona = %s 
             WHERE user_id = %s""",
-            (persona, keywords, age_group, travel_style, budget, session['user_id'])
+            (subtype, keywords, age_group, travel_style, budget, persona, session['user_id'])
         )
         mysql.connection.commit()
         cursor.close()
@@ -142,18 +145,18 @@ def logout():
     flash("You have been logged out.")
     return redirect(url_for('login'))
 
-
 @app.route('/home', methods=['GET', 'POST'])
 def home():
     if 'user_id' not in session:
         flash("Login required to view this page.")
         return redirect(url_for('login'))
 
-    preferred_subtype = session.get('persona')
+    preferred_subtype = session.get('subtype')
     keywords = session.get('keywords')
     age_group = session.get('age_group')
     travel_style = session.get('travel_style')
     budget = session.get('budget')
+
 
     if not preferred_subtype:
         flash("Persona selection is missing.")
@@ -210,7 +213,7 @@ def edit_profile():
         full_name = request.form['Full_name']
         email = request.form['email']
         dob = request.form['DoB']
-        persona = request.form.get('persona')
+        subtype = request.form.get('subtype')
         keywords = request.form.get('keywords')
         age_group = request.form.get('age_group')
         travel_style = request.form.get('travel_style')
@@ -228,9 +231,9 @@ def edit_profile():
         if dob:
             updates.append("DoB = %s")
             values.append(dob)
-        if persona:
-            updates.append("persona = %s")
-            values.append(persona)
+        if subtype:
+            updates.append("subtype = %s")
+            values.append(subtype)
         if keywords:
             updates.append("keywords = %s")
             values.append(keywords)
